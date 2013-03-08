@@ -1,0 +1,1675 @@
+## Kassomat API Documentation
+### Overview
+
+The kassomat API provides all necessary endpoints to manage incoming and outgoing monthly bookings of a private person, a freelancer or a company. In addition to detailed statistics the API provides the functionality to generate, send and persist law conformant, officially legitimated tax assessments to the ELSTER clearing servers.
+
+#### Encoding
+
+The kassomat API responds using UTF-8 only. Data send via *POST* or *PUT* request has to be UTF-8 encoded as well!
+
+#### Language / I18n
+
+The kassomat API as well as all underlying software components support internationalization. At the time of writing the API support the following languages:
+
+* german
+* english
+
+By default **german** is set.
+
+The language can be changed per request. Therefore an additional HTTP Header has to be send: **Accept-Language**. Valid values for the header are:
+
+* de
+* en
+
+#### Security
+
+At the time of writing the kassomat API is available via the URL:  
+
+**http://api.kassomat.net**
+
+SSL is **NOT** supported yet, but will be **mandatory** for **every** request as soon as the API and the frontend application will be officially released. 
+
+#### Versioning
+
+The API may be available in different versions. Therefore every endpoint's URL is prefixed with a valid version number like **/v:i** where i is a numerical incement. At the time of writing the version of the API is 1, so the URL prefix that has to be provided with every request is: **/v1**.
+
+A user resource can be created, read, updated as well as deleted. In case of a deletion, all subsequent subresources are deleted as well.
+
+#### Available Endpoints
+
+##### User
+
+A user has to be created in all cases, because every request to an endpoint needs to be authenticated. Even resources that could be publicly available require a proper user session. A user can be created anonymously first. An anonymous user account has the same capabilities like a standard user an can be converted into the latter afterwards.
+
+*GET*ing users data requires authentication which is described [here](#authentication).
+
+**Important!:** If an anonymous demo user is created, a cryptographically secure email address is generated and returned to the caller. The password of every demo user is always: **'*password*'**. So to create a session for a demo user afterwards, this created emailaddress as well as the password 'password' are necessary.
+
+**Important!:** If an anonymous demo user is created, a first demo tenant as well as a first demo cashbook is created as well, so that bookings can be made immediately. 
+
+#####Attributes
+
+Attribute | Value   | writeable
+----------| --------| ---------
+id        | string  | no
+email     | string  | yes
+password  | string  | yes
+demo      | boolean | yes
+uri       | string  | no
+
+#####Create-POST /:version/user
+
+**Post** accepts different input!
+
+1. create an **anonymous demo user**
+2. create a **standard user**
+
+######Request:
+
+    POST /v1/user
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    
+    { 
+      "user": { "demo": true }
+    }
+
+######Response:
+
+    HTTP/1.1 201 OK
+    Content-Type: application/json
+
+    {
+      "root_name": "user",
+      "user": {
+        "email": "user_6ce01701f0f97f6c48e84b92ef83d909ec6899d3@kassomat.net",
+        "id": "508beab375d493265c000001",
+        "uri": "/v1/user"
+      }
+    }
+***
+    
+######Request:
+
+    POST /v1/user
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    
+    {
+      "user": {
+        "email": "jan@roesner.it",
+        "password": "somepassword"
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 OK
+    Content-Type: application/json
+
+    {
+      "root_name": "user",
+      "user": {
+        "email": "jan@roesner.it",
+        "id": "508bed4b75d493265c000004",
+        "uri":"/v1/user"
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -XPOST -d '{"user":{"demo":true}}' 'http://api.kassomat.net/v1/user'`
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -XPOST -d '{"user":{"email":"demouser@kassomat.net", "password":"somepassword"}}' 'http://api.kassomat.net/v1/user'`
+
+***
+
+#####Show-GET /:version/user
+
+######Request:
+
+    GET /v1/user
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+      "root_name": "user",
+      "user": {
+        "email":"jan@kassomat.net",
+        "id":"5045196475d493207200001c",
+        "uri":"/v1/user"
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: 3C1EccxW1br25GgkpdFF' -XGET 'http://api.kassomat.net/v1/user'`
+
+***
+
+#####Update-PUT /:version/user
+
+######Request:
+
+    PUT /v1/user
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "user": {
+        "email": "janjan@kassomat.net",
+        "password": "new_password"
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+      "root_name": "user",
+      "user": {
+        "email":"janjan@kassomat.net",
+        "id":"5045196475d493207200001c",
+        "uri":"/v1/user"
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: 3C1EccxW1br25GgkpdFF' -XPUT -d '{"user":{"email":"jan@kassomat.net", "password":"password"}}' 'http://api.kassomat.net/v1/user'`
+
+***
+
+#####Destroy-DELETE /:version/user
+
+######Request:
+
+    DELETE /v1/user
+    Host: api.kassomat.net
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 204 No Content
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'X-Kassomat-Auth-Token: 3C1EccxW1br25GgkpdFF' -XDELETE 'http://api.kassomat.net/v1/user'`
+
+***
+
+####Session
+
+<a id="authentication"></a>
+
+The kassomat API supports *cookie based* as well as *token based* session handling. Either way, a user should always take the token based approach. The kassomat team can by no way provide support for problems that occur in relation to a cookie based session appoach.
+
+In contrast to other solutions the authentication token has to be send as a HTTP header. This header has to be named: **X-Kassomat-Auth-Token**.
+
+At the time of writing a sessions validity period is infinite. Every attempt to log in a user that is already logged in will return the same authentication token.
+
+To invalidate a session - aka log out a user - the session has to be destroyed.
+
+#####Attributes
+
+Attribute            | Value  | writeable
+---------------------| -------| ---------
+authentication_token | string | no
+
+#####Create-POST /:version/session
+
+######Request:
+
+    POST /v1/session
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    
+    {
+      "session": {
+        "email": "jan@kassomat.net",
+        "password": "password"
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "root_name": "api_session",
+      "api_session": {
+        "authentication_token": "3C1EccxW1br25GgkpdFF"
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -XPOST -d '{"session":{"email":"jan@kassomat.net", "password":"password"}}' 'http://api.kassomat.net/v1/session'`
+
+***
+
+#####Destroy-DELETE /:version/session
+
+######Request:
+
+    DELETE /v1/session
+    Host: api.kassomat.net
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 204 No Content
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'X-Kassomat-Auth-Token: 3C1EccxW1br25GgkpdFF' -XDELETE 'http://api.kassomat.net/v1/session'`
+
+***
+
+####FiscalOffice
+
+The fiscal_offices endpoint accepts a (maybe incomplete) tax id and in return provides a number of german fiscal offices that matched the tax id.
+
+Therefore it combines the given tax id with the identification number of fiscal offices and returns those where the calculations crc value corresponds to the given tax id's crc  value.
+
+**Important!:** Every returned match contains a 13 digit attribute **fqti** (fully qualified tax id). This has to be provided for every cashbook's **tax_id** field and is used for the creation of tax assessments. 
+
+#####Attributes
+
+Attribute | Value  | writeable
+----------|--------|---------
+id        | string | no
+name      | string | no
+fqti      | string | no
+
+#####Index-GET /:version/fiscal_offices
+
+######Request:
+
+    GET /v1/fiscal_offices
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+######Response:
+
+    HTTP/1.1 204 No Content
+    Content-Type: application/json
+
+    {
+      "root_name": "fiscal_offices",
+      "fiscal_offices": [
+        {
+          "id": "9212",
+          "name": "Finanzamt Coburg",
+          "fqti": "9212034567893"
+        }
+      ]
+    }    
+
+######Parameters:
+
+Parameter | Value
+----------| ------
+tax_id    | string
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: 3C1EccxW1br25GgkpdFF' -XGET 'http://api.kassomat.net/v1/fiscal_offices?tax_id=12/345/67893'`
+
+***
+
+####Accounts
+
+The kassomat API provides a set of pre-build accounts. Every booking to be taken **has to be** associated with an account. There are two types of accounts: **In** and **Out**. An application that deals with bookings has to know the complete list of available accounts and has to present it to the user every time a booking is created.
+
+#####Attributes
+
+Attribute      | Value   | writeable
+---------------|---------|---------
+id             | string  | no
+name           | string  | no
+tax_rate       | integer | no
+account_number | integer | no
+kind           | string  | no
+icon           | string  | no
+
+#####Index-GET /:version/accounts
+
+######Request:
+
+    GET /v1/accounts
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+######Response:
+
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
+
+    {
+      "root_name": "accounts",
+      "page": 1,
+      "total_pages": 2,
+      "total_records": 38,
+      "accounts": [
+        {
+          "id": "5045196475d4932072000001",
+          "name": "Warenverk\u00e4ufe",
+          "tax_rate": 19,
+          "account_number": 4701,
+          "kind": "in",
+          "icon": "/some/path/icon1.png"
+        },
+        {
+          "id": "5045196475d4932072000002",
+          "name": "Provisionen",
+          "tax_rate": 19,
+          "account_number": 4702,
+          "kind": "in",
+          "icon": "/some/path/icon2.png"
+        },
+        …
+      ]
+    }
+
+######Parameters:
+
+Parameter | Value
+----------| ------
+page      | integer
+per       | integer
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/accounts'`  
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/accounts?page=2&per=5'`
+
+***
+
+####Tenants
+
+So that even professionally acting tax specialists may be able to use the product and thus create cashbooks for all of his clients, the API provides a tenants resource. Every user may have a number of tenants which in turn can have one upto many cashbooks.
+
+#####Attributes
+
+Attribute        | Value   | writeable
+-----------------|---------|---------
+id               | string  | no
+name             | string  | yes
+uri              | string  | no
+subresource_uris | object  | no
+
+#####Create-POST /:version/tenants
+
+######Request:
+
+    POST /v1/tenants
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "tenant": {
+        "name": "Example Company"
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "root_name": "tenant",
+      "tenant": {
+        "id": "508ea15575d493265c00000c",
+        "name": "Example Company",
+        "uri": "/v1/tenants/508ea15575d493265c00000c",
+        "subresource_uris": {
+          "cashbooks":"/v1/tenants/508ea15575d493265c00000c/cashbooks"
+        }
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPOST -d'{"tenant":{"name":"Demo GmbH"}}' 'http://api.kassomat.net/v1/tenants'`
+
+***
+
+#####Show-GET /:version/tenants/:id
+
+######Request:
+
+    GET /v1/tenants/508ea15575d493265c00000c
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
+
+    {
+      "root_name": "tenant",
+      "tenant": {
+        "id": "508ea15575d493265c00000c",
+        "name": "Example Company",
+        "uri": "/v1/tenants/508ea15575d493265c00000c",
+        "subresource_uris": {
+          "cashbooks":"/v1/tenants/508ea15575d493265c00000c/cashbooks"
+        }
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea15575d493265c00000c'`
+
+***
+
+#####Show-Index /:version/tenants
+
+######Request:
+
+    GET /v1/tenants
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
+    
+    {
+      "root_name": "tenants",
+      "page": 1,
+      "total_pages": 1,
+      "total_records": 3,
+      "tenants": [
+        {
+          "id": "508ea21175d493265c00000d",
+          "name": "Kassomat Ltd.",
+          "uri": "/v1/tenants/508ea21175d493265c00000d",
+          "subresource_uris": {
+            "cashbooks":"/v1/tenants/508ea21175d493265c00000d/cashbooks"
+          }
+        },
+        {
+          "id": "508ea15575d493265c00000c",
+          "name": "Example Company",
+          "uri": "/v1/tenants/508ea15575d493265c00000c",
+          "subresource_uris": {
+            "cashbooks":"/v1/tenants/508ea15575d493265c00000c/cashbooks"
+          }
+        }
+      ]
+    }
+
+######Parameters:
+
+Parameter | Value
+----------| ------
+page      | integer
+per       | integer
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants'`  
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants?page=2&per=3'`
+
+***
+
+#####Update-PUT /:version/tenants/:id
+
+######Request:
+
+    PUT /v1/tenants/508ea15575d493265c00000c
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "tenant": {
+        "name": "Great Example Company"
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+
+    {
+      "root_name": "tenant",
+      "tenant": {
+        "id": "508ea15575d493265c00000c",
+        "name": "Great Example Company",
+        "uri": "/v1/tenants/508ea15575d493265c00000c",
+        "subresource_uris": {
+          "cashbooks":"/v1/tenants/508ea15575d493265c00000c/cashbooks"
+        }
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPUT -d'{"tenant":{"name":"Great Example Company"}}' 'http://api.kassomat.net/v1/tenants/508ea15575d493265c00000c'`
+
+***
+
+#####Destroy-DELETE /:version/tenants/:id
+
+######Request:
+
+    DELETE /v1/tenants/508ea15575d493265c00000c
+    Host: api.kassomat.net
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 204 No Content
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XDELETE 'http://api.kassomat.net/v1/tenants/508ea15575d493265c00000c'`
+
+####Cashbooks
+
+A cashbook always belongs to a tenant and aggregates bookings. As long as only bookings have to be taken, a cashbook has to have no special detail but a name. Latest at the moment when an assessment is to be created, a cashbook needs to be updated with all identification information that is necessary to successfully and officially declare the taxes for a month or a quarter. Therefore a cashbook provides conditional validations, dependently from the usecase. 
+
+#####Attributes
+
+Attribute        | Value   | writeable
+-----------------|---------|---------
+id               | string  | no
+name             | string  | yes
+tax_id           | string  | yes
+tax_firstname    | string  | yes
+tax_lastname     | string  | yes
+tax_street       | string  | yes
+tax_zip          | string  | yes
+tax_city         | string  | yes
+tax_state        | string  | yes
+tax_phone        | string  | yes
+tax_email        | string  | yes
+uri              | string  | no
+subresource_uris | object  | no
+
+#####Create-POST /:version/tenants/:id/cashbooks
+
+**Post** accepts different input!
+
+1. create an **unpersonalized** cashbook
+2. create a **personalized** cashbook (with assessment functionality)
+
+######Request:
+
+    POST /v1/tenants/508ea21175d493265c00000d/cashbooks
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "cashbook": {
+        "name": "Company Cashbook"
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "root_name": "cashbook",
+      "cashbook": {
+        "id": "508f8c8375d493265c00000f",
+        "name": "Company Cashbook",
+        "tax_id": null,
+        "tax_first_name": null,
+        "tax_last_name": null,
+        "tax_street": null,
+        "tax_zip": null,
+        "tax_city": null,
+        "tax_state": null,
+        "tax_phone": null,
+        "tax_email": null,
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8c8375d493265c00000f",
+        "subresource_uris": {
+          "bookings": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8c8375d493265c00000f/bookings",
+          "assessments":"/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8c8375d493265c00000f/assessments"
+        }
+      }
+    }
+
+***
+
+######Request:
+
+    POST /v1/tenants/508ea21175d493265c00000d/cashbooks
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "cashbook": {
+        "name": "Private Cashbook",
+        "tax_id": "9212034567893",
+        "tax_first_name": "Max",
+        "tax_last_name": "Mustermann",
+        "tax_street": "Musterstraße 1",
+        "tax_zip": "12345",
+        "tax_city": "Musterstadt",
+        "tax_state": "Musterland",
+        "tax_phone": "00493012345678",
+        "tax_email": "max@mustermann.de"
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "root_name": "cashbook",
+      "cashbook": {
+        "id": "508f8fc475d493265c000012",
+        "name": "Private Cashbook",
+        "tax_id": "9212034567893",
+        "tax_first_name": "Max",
+        "tax_last_name": "Mustermann",
+        "tax_street": "Musterstra\u00dfe 1",
+        "tax_zip": "12345",
+        "tax_city": "Musterstadt",
+        "tax_state": "Musterland",
+        "tax_phone": "00493012345678",
+        "tax_email": "max@mustermann.de",
+        "uri":"/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012",
+        "subresource_uris": {
+          "bookings": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings",
+          "assessments": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments"
+        }
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPOST -d'{"cashbook":{"name":"Company Cashbook"}}' 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks'`  
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPOST -d'{"cashbook": {"name": "Private Cashbook2", "tax_id":"9212034567893", "tax_first_name":"Max", "tax_last_name":"Mustermann", "tax_street":"Musterstraße 1", "tax_zip":"12345", "tax_city":"Musterstadt", "tax_state":"Musterland", "tax_phone":"00493012345678", "tax_email":"max@mustermann.de"}}' 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks'`
+
+***
+
+#####Show-GET /:version/tenants/:id/cashbooks/:id
+
+######Request:
+
+    GET /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
+
+    {
+      "root_name": "cashbook",
+      "cashbook": {
+        "id": "508f8fc475d493265c000012",
+        "name": "Private Cashbook",
+        "tax_id": "9212034567893",
+        "tax_first_name": "Max",
+        "tax_last_name": "Mustermann",
+        "tax_street": "Musterstra\u00dfe 1",
+        "tax_zip": "12345",
+        "tax_city": "Musterstadt",
+        "tax_state": "Musterland",
+        "tax_phone": "00493012345678",
+        "tax_email": "max@mustermann.de",
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012",
+        "subresource_uris": {
+          "bookings": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings",
+         "assessments": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments"
+        }
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012'`
+
+***
+
+#####Show-Index /:version/tenants/:id/cashbooks
+
+######Request:
+
+    GET /v1/tenants/508ea21175d493265c00000d/cashbooks
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
+    
+    {
+      "root_name": "cashbooks",
+      "page": 1,
+      "total_pages": 1,
+      "total_records": 4,
+      "cashbooks": [
+        {
+          "id": "508f8c8375d493265c00000f",
+          "name": "Company Cashbook",
+          "tax_id": null,
+          "tax_first_name": null,
+          "tax_last_name": null,
+          "tax_street": null,
+          "tax_zip": null,
+          "tax_city": null,
+          "tax_state": null,
+          "tax_phone": null,
+          "tax_email": null,
+          "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8c8375d493265c00000f",
+          "subresource_uris": {
+            "bookings": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8c8375d493265c00000f/bookings",
+            "assessments": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8c8375d493265c00000f/assessments"
+          }
+        },
+        {
+          "id": "508f8fc475d493265c000012",
+          "name": "Private Cashbook",
+          "tax_id": "9212034567893",
+          "tax_first_name": "Max",
+          "tax_last_name": "Mustermann",
+          "tax_street": "Musterstra\u00dfe 1",
+          "tax_zip": "12345",
+          "tax_city": "Musterstadt",
+          "tax_state": "Musterland",
+          "tax_phone": "00493012345678",
+          "tax_email": "max@mustermann.de",
+          "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012",
+          "subresource_uris": {
+            "bookings": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings",
+            "assessments": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments"
+          }
+        }
+      ]
+    }
+
+######Parameters:
+
+Parameter | Value
+----------| ------
+page      | integer
+per       | integer
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks'`  
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks?page=2&per=5'`
+
+***
+
+#####Update-PUT /:version/tenants/:id/cashbooks/:id
+
+######Request:
+
+    PUT /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "cashbook": {
+        "name": "Privates Kassenbuch",
+        "tax_id": "9212034567893",
+        "tax_first_name": "Maxi",
+        "tax_last_name": "Musterfrau",
+        "tax_street": "Musterstraße 22",
+        "tax_zip": "54321",
+        "tax_city": "Musterort",
+        "tax_state": "Musterland",
+        "tax_phone": "00493087654321",
+        "tax_email": "maxi@musterfrau.de"
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    
+    {
+      "root_name": "cashbook",
+      "cashbook": {
+        "id": "508f8fc475d493265c000012",
+        "name": "Privates Kassenbuch",
+        "tax_id": "9212034567893",
+        "tax_first_name": "Maxi",
+        "tax_last_name": "Musterfrau",
+        "tax_street": "Musterstra\u00dfe 22",
+        "tax_zip": "54321",
+        "tax_city": "Musterort",
+        "tax_state": "Musterland",
+        "tax_phone": "00493087654321",
+        "tax_email": "maxi@musterfrau.de",
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012",
+        "subresource_uris": {
+          "bookings": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings",
+          "assessments":"/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments"
+        }
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPUT -d'{"cashbook": {"name": "Privates Kassenbuch", "tax_id":"9212034567893", "tax_first_name":"Maxi", "tax_last_name":"Musterfrau", "tax_street":"Musterstraße 22", "tax_zip":"54321", "tax_city":"Musterort", "tax_state":"Musterland", "tax_phone":"00493087654321", "tax_email":"maxi@musterfrau.de"}}' 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012'`
+
+***
+
+#####Destroy-DELETE /:version/tenants/:id/cashbooks/:id
+
+######Request:
+
+    DELETE /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8c8375d493265c00000f
+    Host: api.kassomat.net
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 204 No Content
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XDELETE 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f942b75d493265c000013'`
+
+***
+
+####Bookings
+
+Bookings always belong to a certain cashbook. They also have to have a relation to an account.
+
+**Important!:** Bookings *can* under certian circumstances be revision (audit) proof. In case an assessment exists, whose date range covers a bookings date **and** the assessments *preview* flag was set to *false* **and** the assessments **test** flag was set to *false* also, a booking can not be updated or deleted anymore. Such a booking can only be deleted by deleting the whole cashbook or the user object.
+
+#####Attributes
+
+Attribute   | Value    | writeable
+------------|----------|---------
+id          | string   | no
+name        | string   | yes
+net         | integer  | yes
+date        | string   | yes
+kind        | string   | no
+tax_rate    | integer  | no
+cashbook_id | string   | no
+account_id  | string   | yes
+uri         | string   | no
+
+#####Create-POST /:version/tenants/:id/cashbooks/:id/bookings
+
+######Request:
+
+    POST /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "booking": {
+        "name": "Tankrechnung",
+        "account_id": "5045196475d493207200000e",
+        "date": "2012-10-28",
+        "net": 2342
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "root_name": "booking",
+      "booking": {
+        "id": "508fa50d75d493265c000018",
+        "name": "Tankrechnung",
+        "net": 2342,
+        "date": "2012-10-28",
+        "kind": "out",
+        "tax_rate": 19,
+        "cashbook_id": "508f8fc475d493265c000012",
+        "account_id": "5045196475d493207200000e",
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa50d75d493265c000018"
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPOST -d'{"booking":{"name":"Tankrechnung", "account_id":"5045196475d493207200000e", "date":"2012-10-28", "net":2342}}' 'api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings'`
+
+***
+
+#####Show-GET /:version/tenants/:id/cashbooks/:id/bookings/:id
+
+######Request:
+
+    GET /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa50d75d493265c000018
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
+
+    {
+      "root_name": "booking",
+      "booking": {
+        "id": "508fa50d75d493265c000018",
+        "name": "Tankrechnung",
+        "net": 2342,
+        "date": "2012-10-28",
+        "kind": "out",
+        "tax_rate": 19,
+        "cashbook_id": "508f8fc475d493265c000012",
+        "account_id": "5045196475d493207200000e",
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa50d75d493265c000018"
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa50d75d493265c000018'`
+
+***
+
+#####Show-Index /:version/tenants/:id/cashbooks/:id/bookings
+
+######Request:
+
+    GET /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
+    
+    {
+      "root_name": "bookings",
+      "page": 1,
+      "total_pages": 1,
+      "total_records": 2,
+      "bookings": [
+        {
+          "id": "508fa50d75d493265c000018",
+          "name": "Tankrechnung",
+          "net": 2342,
+          "date": "2012-10-28",
+          "kind": "out",
+          "tax_rate": 19,
+          "cashbook_id": "508f8fc475d493265c000012",
+          "account_id": "5045196475d493207200000e",
+          "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa50d75d493265c000018"
+        },
+        {
+          "id": "508fa82e75d493265c000019",
+          "name": "KFZ Reparatur",
+          "net": 184223,
+          "date": "2012-10-28",
+          "kind": "out",
+          "tax_rate": 19,
+          "cashbook_id": "508f8fc475d493265c000012",
+          "account_id": "5045196475d493207200000e",
+          "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa82e75d493265c000019"
+        }
+      ]
+    }
+
+######Parameters:
+
+Parameter | Value
+----------| ------
+page      | integer
+per       | integer
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings'`  
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings?page=2&per=5'`
+
+***
+
+#####Update-PUT /:version/tenants/:id/cashbooks/:id/bookings/:id
+
+**Important!:** In case an assessment exists, whose date range covers a bookings date **and** the assessments *preview* flag was set to *false* **and** the assessments **test** flag was set to *false* also, a booking can not be updated anymore.
+
+######Request:
+
+    PUT /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa82e75d493265c000019
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "booking": {
+        "name": "Auto-Reparatur",
+        "account_id": "5045196475d493207200000e",
+        "date": "2012-10-29",
+        "net":184223
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    
+    {
+      "root_name": "booking",
+      "booking": {
+        "id": "508fa82e75d493265c000019",
+        "name": "Auto-Reparatur",
+        "net": 184223,
+        "date": "2012-10-29",
+        "kind": "out",
+        "tax_rate": 19,
+        "cashbook_id": "508f8fc475d493265c000012",
+        "account_id":"5045196475d493207200000e",
+        "uri":"/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa82e75d493265c000019"
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPUT -d'{"booking":{"name":"Auto-Reparatur", "account_id":"5045196475d493207200000e", "date":"2012-10-29", "net":184223}}' 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa50d75d493265c000018'`
+
+***
+
+#####Destroy-DELETE /:version/tenants/:id/cashbooks/:id/bookings/:id
+
+**Important!:** In case an assessment exists, whose date range covers a bookings date **and** the assessments *preview* flag was set to *false* **and** the assessments **test** flag was set to *false* also, a booking can not be deleted anymore.
+
+######Request:
+
+    DELETE /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fa82e75d493265c000019
+    Host: api.kassomat.net
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 204 No Content
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XDELETE 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/bookings/508fac0475d493265c000019'`
+
+***
+
+####Assessments
+
+Assessments can be created for a specific month or a quarter. They are the most special resources the kassomat API provides at that time.
+
+There are **2 different kinds** of assessments:
+
+a. automatic assessments
+b. manual assessments
+
+An **automatic assessment's** tax data are automatically calculated by the kassomat server software. For the creation of such an assessment no special data has to be transferred by the user. As long as the year and the assessment period is given, the tax data can be calculated from existing bookings and their data.
+
+A **manual assessment** provides the possibility to transfer the relevant base data for tax calculation directly with the creation request. Therefore no bookings have to exist for the user for him to be able to declare his taxes. All other rules apply to manual assessments as well as to automatic assessments. The tax data have to be given as an extra object like the following:
+
+    "data" : {
+      "in_7": 2342,
+      "out_7": 4711,
+      "in_19": 1876,
+      "out_19": 4223
+    }
+
+The :data object's attributes have to be named as above. The values are integers representing Euro Cent values. If for example an income of 1423,45€ at 19% tax shall be declared, **:in_19** has to be set to **142345**.
+
+In case :data are given and valid, they are used for the declaration. In case not the tax data is automatically calculated from existing bookings. If the :data object is given but invalid, the server responds with an error as well as with an explaining message.
+
+Both kind of assessments can be transferred in 3 different modes. For the sake of easy understanding the 3 modes are demo'ed below with automatic assessments only. You find an example request for a manual assessment in the curl example section.
+
+Assessments can be created in 3 different modes:
+
+1. preview mode
+2. test mode
+3. real mode
+
+The **preview mode** is used only to calculate the tax amount and numbers for a given month or quarter. Such an assessment is returned, **but not persisted**. In order to create a preview assessment nothing special has to be done. Every assessment is a preview assessment by default.
+
+The **test mode** really delivers data to the official tax authorities clearing servers. The data is processed over there, **but is not persisted on the side of ELSTER**. A test assessment is persisted on the side of kassomat. In order to create a test assessment simply the *preview* flag has to be set to *false*. 
+
+In **real mode** an assessment is persisted on kassomat and on ELSTER side. Use this mode only in a real production environment. In order to create a real assessment the two flags *preview* and *test* have to be set to *false*.
+
+**Important!:** At the time of writing the kassomat API is available at **api.kassomat.net**. The application on this server in fact runs in *production* mode, but the *test* flag of **EVERY** assessment is automatically overwritten with *false*. So just at the moment no real mode assessments can be created. 
+
+In addition to that, only real mode assessments make bookings **audit proof**. As long as the server does not allow the creation of real mode assessments, no booking will be really audit proof.
+
+**Important!:** **test mode** and **real mode** assessments are created synchronously. **But** the communication with the ELSTER clearing servers happens in an asynchronous manner. Therefore after *POST*ing an assessment, it is returned, containing a unique *id*. This *id* can be used in subsequent *GET* requests to refetch the resource until it has been processed. As soon as the processing is done, the resource changes and provides additional information, especially a link to an official and legally binding report file in PDF and JPG format.
+
+#####Attributes
+
+Attribute   | Value     | writeable
+------------|-----------|---------
+id          | string    | no
+year        | integer   | yes
+month       | integer   | yes
+preview     | integer   | yes
+testmode    | boolean   | yes
+quarter     | integer   | yes
+in_7        | integer   | no
+in_19       | integer   | no
+out_7       | integer   | no
+out_19      | integer   | no
+sent_at     | string    | no
+receipt     | string    | no
+pdf         | string    | no
+jpg         | string    | no
+kz66        | string    | no
+kz81        | string    | no
+kz83        | string    | no
+kz86        | string    | no
+status      | string    | no
+uri         | string    | no
+data        | object    | yes
+data[in_7]  | integer   | yes
+data[out_7] | integer   | yes
+data[in_19] | integer   | yes
+data[out_19]| integer   | yes
+
+#####Create-POST /:version/tenants/:id/cashbooks/:id/assessments
+
+Creation of an ** automatic assessment** in **preview mode**
+
+######Request:
+
+    POST /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "assessment": {
+        "year":2012,
+        "month":10
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "error": "Kassomat::ValidationError",
+      "message": "Validation failed - Preview muss auf false gesetzt werden.",
+      "assessment": {
+        "id": "508fb6c175d493265c00001b",
+        "year": 2012,
+        "month": 10,
+        "quarter": null,
+        "preview": true,
+        "in_7": 0,
+        "in_19": 0,
+        "out_7": 0,
+        "out_19":184223,
+        "sent_at": "2012-10-30T12:15:13+01:00",
+        "receipt": "<Elster XML Data>...</Elster XML Data>",
+        "pdf": null,
+        "jpg": null,
+        "kz66": "294.14",
+        "kz81": "0.0",
+        "kz83": "-294.14",
+        "kz86": "0.0",
+        "status": "preview",
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb6c175d493265c00001b",
+        "testmode":true
+      }
+    }
+
+***
+
+Creation of an **automatic assessment** in **test mode**
+
+######Request:
+
+    POST /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "assessment": {
+        "year":2012,
+        "month":10,
+        "preview": false
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "root_name": "assessment",
+      "assessment": {
+        "id": "508fb97d75d493265c00001d",
+        "year": 2012,
+        "month": 10,
+        "quarter": null,
+        "preview": false,
+        "in_7": 0,
+        "in_19": 0,
+        "out_7": 0,
+        "out_19": 184223,
+        "sent_at": "2012-10-30T12:26:53+01:00",
+        "receipt": "empty",
+        "pdf": null,
+        "jpg": null,
+        "kz66": null,
+        "kz81": null,
+        "kz83": null,
+        "kz86": null,
+        "status": "pending",
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb97d75d493265c00001d",
+        "testmode": true
+      }
+    }
+
+***
+
+Creation of an **automatic assessment** in **real mode**
+
+######Request:
+
+    POST /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "assessment": {
+        "year":2012,
+        "month":10,
+        "preview": false,
+        "testmode": false
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "root_name": "assessment",
+      "assessment": {
+        "id": "508fb97d75d493265c00001e",
+        "year": 2012,
+        "month": 10,
+        "quarter": null,
+        "preview": false,
+        "in_7": 0,
+        "in_19": 0,
+        "out_7": 0,
+        "out_19": 184223,
+        "sent_at": "2012-10-30T12:26:53+01:00",
+        "receipt": "empty",
+        "pdf": null,
+        "jpg": null,
+        "kz66": null,
+        "kz81": null,
+        "kz83": null,
+        "kz86": null,
+        "status": "pending",
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb97d75d493265c00001d",
+        "testmode": false
+      }
+    }
+
+***
+
+Creation of a **manual assessment** in **test mode**
+
+######Request:
+
+    POST /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments
+    Host: api.kassomat.net
+    Accept: application/json
+    Content-Type: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+    
+    {
+      "assessment": {
+        "year":2012,
+        "month":10,
+        "preview": false,
+        "data": {
+          "in_7": 1234,
+          "out_7": 2345,
+          "in_19": 3456,
+          "out_19": 4567
+        }
+      }
+    }
+
+######Response:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json
+
+    {
+      "root_name": "assessment",
+      "assessment": {
+        "id": "508fb97d75d493265c00001d",
+        "year": 2012,
+        "month": 10,
+        "quarter": null,
+        "preview": false,
+        "in_7": 1234,
+        "in_19": 3456,
+        "out_7": 2345,
+        "out_19": 4567,
+        "sent_at": "2012-10-30T12:27:55+01:00",
+        "receipt": "empty",
+        "pdf": null,
+        "jpg": null,
+        "kz66": null,
+        "kz81": null,
+        "kz83": null,
+        "kz86": null,
+        "status": "pending",
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb97d75d493265c00001e",
+        "testmode": true
+      }
+    }
+
+***
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPOST -d'{"assessment":{"year":2012, "month":10}}' 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments'`  
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPOST -d'{"assessment":{"year":2012, "month":10, "preview":false}}' 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments'`  
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPOST -d'{"assessment":{"year":2012, "month":10, "preview":false, "testmode":false}}' 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments'`
+
+`curl -i -H'Accept: application/json' -H'Content-Type: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XPOST -d'{"assessment":{"year":2012, "month":10, "preview":false, "data":{"in_7":1234,"in_19":2345,"out_7":3456,"out_19":4567}}}' 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments'`
+
+***
+
+#####Show-GET /:version/tenants/:id/cashbooks/:id/assessments/:id
+
+######Request:
+
+    GET /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fba7975d493265c00001e
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
+
+    {
+      "root_name": "assessment",
+      "assessment": {
+        "id": "508fba7975d493265c00001e",
+        "year": 2012,
+        "month": 10,
+        "quarter": null,
+        "preview": false,
+        "in_7": 0,
+        "in_19": 0,
+        "out_7": 0,
+        "out_19": 184223,
+        "sent_at": "2012-10-30T12:31:07+01:00",
+        "receipt": "<Elser XML Data>…</Elter XML Data>",
+        "pdf": "/pdf/ElsterReport_db0a69287a7d67ba8238359a8fd035d2fce77c75.pdf",
+        "jpg": "/jpg/ElsterReport_db0a69287a7d67ba8238359a8fd035d2fce77c75.jpg",
+        "kz66": "294.14",
+        "kz81": "0.0",
+        "kz83": "-294.14",
+        "kz86": "0.0",
+        "status": "completed",
+        "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fba7975d493265c00001e",
+        "testmode": false
+      }
+    }
+
+######Parameters:
+
+*none*
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fba7975d493265c00001e'`
+
+***
+
+#####Show-Index /:version/tenants/:id/cashbooks/:id/assessments
+
+######Request:
+
+    GET /v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments
+    Host: api.kassomat.net
+    Accept: application/json
+    X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8
+
+######Response:
+
+    HTTP/1.1 200 Ok
+    Content-Type: application/json
+    
+    {
+      "root_name": "assessments",
+      "page": 1,
+      "total_pages": 1,
+      "total_records": 3,
+      "assessments": [
+        {
+          "id": "508fba7975d493265c00001e",
+           "year": 2012,
+           "month": 10,
+           "quarter": null,
+           "preview": false,
+           "in_7": 0,
+           "in_19": 0,
+           "out_7": 0,
+           "out_19": 184223,
+           "sent_at": "2012-10-30T12:31:07+01:00",
+           "receipt": "<Elster XML Data></Elster XML Data>",
+           "pdf": "/pdf/ElsterReport_db0a69287a7d67ba8238359a8fd035d2fce77c75.pdf",
+           "jpg": "/jpg/ElsterReport_db0a69287a7d67ba8238359a8fd035d2fce77c75.jpg",
+           "kz66": "294.14",
+           "kz81": "0.0",
+           "kz83": "-294.14",
+           "kz86": "0.0",
+           "status": "completed",
+           "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fba7975d493265c00001e",
+           "testmode": true
+          },
+          {
+            "id": "508fb97d75d493265c00001d",
+            "year": 2012,
+            "month": 10,
+            "quarter": null,
+            "preview": false,
+            "in_7": 0,
+            "in_19": 0,
+            "out_7": 0,
+            "out_19": 184223,
+            "sent_at": "2012-10-30T12:26:55+01:00",
+            "receipt": "<Elster XML Data></Elster XML Data",
+            "pdf": "/pdf/ElsterReport_b0443e37a9a7437aa0a0ad04152df38d00a43876.pdf",
+           "jpg": "/jpg/ElsterReport_b0443e37a9a7437aa0a0ad04152df38d00a43876.jpg",
+           "kz66": "294.14",
+           "kz81": "0.0",
+           "kz83": "-294.14",
+           "kz86": "0.0",
+           "status": "completed",
+           "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb97d75d493265c00001d",
+           "testmode": true
+         },
+         {
+           "id": "508fb94f75d493265c00001c",
+           "year": 2012,
+           "month": 10,
+           "quarter": null,
+           "preview": false,
+           "in_7": 0,
+           "in_19": 0,
+           "out_7": 0,
+           "out_19": 184223,
+           "sent_at": "2012-10-30T12:26:10+01:00",
+           "receipt": "<Elster XML Data></Elster XML Data>",
+           "pdf": "/pdf/ElsterReport_fcf73cf14c0767fddf3860e32bfbcaf8c36e34ce.pdf",
+           "jpg": "/jpg/ElsterReport_fcf73cf14c0767fddf3860e32bfbcaf8c36e34ce.jpg",
+           "kz66": "294.14",
+           "kz81": "0.0",
+           "kz83": "-294.14",
+           "kz86": "0.0",
+           "status": "completed",
+           "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb94f75d493265c00001c",
+           "testmode":true
+         }
+       ]
+     }
+
+######Parameters:
+
+Parameter | Value
+----------| ------
+page      | integer
+per       | integer
+
+######CURL Examples:
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments'`  
+
+`curl -i -H'Accept: application/json' -H'X-Kassomat-Auth-Token: CiNydtFjpJwGzxMrtxA8' -XGET 'http://api.kassomat.net/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments?page=2&per=5'`
+
+***

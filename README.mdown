@@ -1261,6 +1261,10 @@ In addition to that, only real mode assessments make bookings **audit proof**. A
 
 **Important!:** **test mode** and **real mode** assessments are created synchronously. **But** the communication with the ELSTER clearing servers happens in an asynchronous manner. Therefore after *POST*ing an assessment, it is returned, containing a unique *id*. This *id* can be used in subsequent *GET* requests to refetch the resource until it has been processed. As soon as the processing is done, the resource changes and provides additional information, especially a link to an official and legally binding report file in PDF and JPG format.
 
+#####Corrections / Adjustments
+
+In case a monthly or quarterly assessment was created in test- or real-mode, every subsequent assessment for the same month / quarter has to be sent with a correction flag set. The kassomat API automatically set's the correction flag in case an assessment exists already for the given month / quarter. To determine, whether an assessment was sent with the correction flag set, the flat is delivered with every assessment in return.
+
 #####Attributes
 
 Attribute   | Value     | writeable
@@ -1272,6 +1276,7 @@ preview     | integer   | yes
 test        | boolean   | yes
 testmode    | boolean   | no
 quarter     | integer   | yes
+correction  | boolean   | no
 in_7        | integer   | no
 in_19       | integer   | no
 out_7       | integer   | no
@@ -1340,7 +1345,8 @@ Creation of an ** automatic assessment** in **preview mode**
         "status": "preview",
         "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb6c175d493265c00001b",
         "test": true,
-        "testmode": true
+        "testmode": true,
+        "correction": false
       }
     }
 
@@ -1392,7 +1398,8 @@ Creation of an **automatic assessment** in **test mode**
         "status": "pending",
         "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb97d75d493265c00001d",
         "test": true,
-        "testmode": true
+        "testmode": true,
+        "correction": false
       }
     }
 
@@ -1444,8 +1451,9 @@ Creation of an **automatic assessment** in **real mode**
         "kz86": null,
         "status": "pending",
         "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb97d75d493265c00001d",
-        "test": false
-        "testmode": false
+        "test": false,
+        "testmode": false,
+        "correction": false
       }
     }
 
@@ -1503,7 +1511,8 @@ Creation of a **manual assessment** in **test mode**
         "status": "pending",
         "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb97d75d493265c00001e",
         "test": true,
-        "testmode": true
+        "testmode": true,
+        "correction": false
       }
     }
 
@@ -1562,7 +1571,8 @@ Creation of a **manual assessment** in **test mode**
         "status": "completed",
         "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fba7975d493265c00001e",
         "test": false, 
-        "testmode": false
+        "testmode": false,
+        "correction": false
       }
     }
 
@@ -1617,7 +1627,8 @@ Creation of a **manual assessment** in **test mode**
            "status": "completed",
            "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fba7975d493265c00001e",
            "test": true,
-           "testmode": true
+           "testmode": true,
+           "correction": false
           },
           {
             "id": "508fb97d75d493265c00001d",
@@ -1640,7 +1651,8 @@ Creation of a **manual assessment** in **test mode**
            "status": "completed",
            "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb97d75d493265c00001d",
            "test": true,
-           "testmode": true
+           "testmode": true,
+           "correction": false
          },
          {
            "id": "508fb94f75d493265c00001c",
@@ -1663,7 +1675,8 @@ Creation of a **manual assessment** in **test mode**
            "status": "completed",
            "uri": "/v1/tenants/508ea21175d493265c00000d/cashbooks/508f8fc475d493265c000012/assessments/508fb94f75d493265c00001c",
            "test": true,
-           "testmode":true
+           "testmode": true,
+           "correction": false
          }
        ]
      }
